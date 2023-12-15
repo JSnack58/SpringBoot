@@ -5,9 +5,15 @@ import com.example.inventoryservice.repository.InventoryRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+// Originally, this was supposed to @EnableEurekaClient but since
+// spring-cloud.version 2022.0.0 this has been changed to
+// @EnableDiscoveryClient.
+// This gets the Application Registered by the Eureka Discovery Server.
+@EnableDiscoveryClient
 public class InventoryServiceApplication {
 
 	public static void main(String[] args) {

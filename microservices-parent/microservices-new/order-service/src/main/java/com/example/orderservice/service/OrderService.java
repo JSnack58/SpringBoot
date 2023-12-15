@@ -7,6 +7,8 @@ import com.example.orderservice.model.Order;
 import com.example.orderservice.model.OrderLineItems;
 import com.example.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang.ObjectUtils;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,7 +26,7 @@ public class OrderService {
     // Provides access to the database.
     private final OrderRepository orderRepository;
 
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
     // Create an Order from an OrderRequest and save to teh database.
     public void placeOrder(OrderRequest orderRequest){
         Order order = new Order();
@@ -41,8 +43,10 @@ public class OrderService {
         // Call Inventory Service, and place order if product is in stock.
         // The Inventory's Get aka checks the uri for a skuCode but
         // the Order contains OrderLineItems each with their own skuCode.
-        InventoryResponse[] inventoryResponseArray = webClient.get()
-                .uri("http://localhost:8082/api/inventory",
+        // With the service application as a DiscoveryClient the webClientBuilder will check
+        // the DiscoveryServer(Eureka) for the host "inventory-service" to the request to.
+        InventoryResponse[] inventoryResponseArray = webClientBuilder.build().get()
+                .uri("http://inventory-service/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build() )
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
@@ -50,6 +54,8 @@ public class OrderService {
 
         // Determine whether to save the order or throw an error based on
         // if all InventoryResponses are in-stock.
+
+        assert inventoryResponseArray != null;
         boolean AllProductsInStock = Arrays.stream(inventoryResponseArray).allMatch(InventoryResponse::isInStock);
         if (AllProductsInStock){
             orderRepository.save(order);
