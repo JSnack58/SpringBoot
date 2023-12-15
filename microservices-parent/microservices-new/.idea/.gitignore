@@ -1,0 +1,9 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+/microservices-parent/microservices-new/order-service/src/main/resources/secrets.properties
+/microservices-parent/microservices-new/order-service/target
+microservices-parent/microservices-new/inventory-service/src/main/resources/secrets.properties
+microservices-parent/microservices-new/inventory-service/target
+microservices-parent/microservices-new/product-service/target
+/microservices-parent/.idea
